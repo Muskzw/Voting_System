@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
 import VotingBooth from './pages/VotingBooth';
-import AdminDashboard from './pages/AdminDashboard';
 import Header from './components/Header';
+import Ticker from './components/Ticker';
 import { MOCK_VOTER_CODES } from './data/mockData';
 
 function App() {
@@ -14,15 +16,15 @@ function App() {
     if (MOCK_VOTER_CODES.includes(code)) {
       const hasVoted = localStorage.getItem(`voted_${code}`);
       if (hasVoted) {
-        alert('This Voter Code has already been used to cast a vote.');
+        alert('⚠️ This Voter Code has already been used. Each code may only vote once.');
       } else {
         setCurrentVoterCode(code);
         navigate('/vote');
       }
     } else if (code === 'ADMIN-123') {
-      navigate('/admin');
+      navigate('/');
     } else {
-      alert('Invalid Voter Code. Please try again.');
+      alert('❌ Invalid Voter Code. Please check your code and try again.');
     }
   };
 
@@ -32,23 +34,25 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <>
       <Header currentVoterCode={currentVoterCode} onLogout={handleLogout} />
-      <main style={{ padding: '2rem' }}>
+      <main>
         <Routes>
-          <Route path="/" element={<LandingPage onLogin={handleLogin} />} />
-          <Route 
-            path="/vote" 
+          <Route path="/"       element={<HomePage />} />
+          <Route path="/login"  element={<LandingPage onLogin={handleLogin} />} />
+          <Route
+            path="/vote"
             element={
-              currentVoterCode ? 
-              <VotingBooth voterCode={currentVoterCode} onComplete={handleLogout} /> : 
-              <Navigate to="/" />
-            } 
+              currentVoterCode
+                ? <VotingBooth voterCode={currentVoterCode} onComplete={handleLogout} />
+                : <Navigate to="/login" replace />
+            }
           />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-    </div>
+      <Ticker />
+    </>
   );
 }
 
