@@ -12,8 +12,6 @@ const ROLE_META = {
 
 const DEFAULT_ICON = Vote;
 
-const DEFAULT_ICON = Vote;
-
 const AVATAR_COLORS = [
   ['#1a6cf5','#00d4ff'], ['#9b59f5','#e040fb'],
   ['#f5c842','#ff9800'], ['#00e676','#00bcd4'],
