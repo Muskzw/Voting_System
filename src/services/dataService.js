@@ -19,7 +19,7 @@ export const fetchCandidatesFromSheet = async () => {
     dataRows.forEach((row, index) => {
       if (row.length < 7) return; // Basic validation
       
-      const [timestamp, fullName, studentId, year, phone, email, position] = row;
+      const [timestamp, fullName, studentId, year, phone, email, position, otherPos, manifesto, photoUrl] = row;
       
       if (!fullName || !position) return;
       
@@ -33,8 +33,9 @@ export const fetchCandidatesFromSheet = async () => {
         id: `c-${index}`,
         name: fullName,
         course: year,
-        bio: `Nominated for ${position}. Student ID: ${studentId}`,
-        email: email
+        bio: manifesto || `Nominated for ${position}.`,
+        email: email,
+        photo: convertDriveUrl(photoUrl)
       });
     });
     
@@ -88,4 +89,17 @@ function parseCSV(text) {
   }
   
   return result;
+}
+
+/**
+ * Converts a regular Google Drive share link to a direct image link.
+ */
+function convertDriveUrl(url) {
+  if (!url || !url.includes('drive.google.com')) return url;
+  
+  const match = url.match(/\/file\/d\/([^\/]+)\//) || url.match(/id=([^\&]+)/);
+  if (match && match[1]) {
+    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+  }
+  return url;
 }

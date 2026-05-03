@@ -34,10 +34,15 @@ const CandidateCard = ({ candidate, isSelected, onSelect, colorPair }) => {
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
         <div className="avatar" style={{
-          background: `linear-gradient(135deg, ${gradA}, ${gradB})`,
-          boxShadow: isSelected ? `0 0 16px ${gradA}66` : 'none'
+          background: candidate.photo ? 'none' : `linear-gradient(135deg, ${gradA}, ${gradB})`,
+          boxShadow: isSelected ? `0 0 16px ${gradA}66` : 'none',
+          overflow: 'hidden'
         }}>
-          {getInitials(candidate.name)}
+          {candidate.photo ? (
+            <img src={candidate.photo} alt={candidate.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            getInitials(candidate.name)
+          )}
         </div>
 
         <div style={{ flex: 1 }}>
