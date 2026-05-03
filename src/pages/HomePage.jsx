@@ -21,8 +21,12 @@ const AVATAR_COLORS = [
   ['#f5c842','#ff9800'], ['#00e676','#00bcd4'],
 ];
 
-const getInitials = (name) =>
-  name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+const getInitials = (name) => {
+  if (!name) return '??';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
 
 const formatRole = (role) => {
   if (ROLE_LABELS[role]) return ROLE_LABELS[role].label;
@@ -75,9 +79,11 @@ const RacePanel = ({ role, votes, candidates: allCandidates }) => {
               {/* Avatar */}
               <div className="avatar" style={{
                 background: candidate.photo ? 'none' : `linear-gradient(135deg, ${gradA}, ${gradB})`,
-                width: 42, height: 42, fontSize: '0.85rem',
+                width: '40px', height: '40px', fontSize: '0.8rem',
                 boxShadow: isLeading ? `0 0 12px ${gradA}66` : 'none',
-                overflow: 'hidden', flexShrink: 0
+                overflow: 'hidden', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                borderRadius: '50%'
               }}>
                 {candidate.photo ? (
                   <img src={candidate.photo} alt={candidate.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -178,7 +184,7 @@ const HomePage = () => {
     date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   return (
-    <div className="page-content" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+    <div className="page-content" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1.5rem 120px' }}>
 
       {/* ── HERO ── */}
       <div style={{

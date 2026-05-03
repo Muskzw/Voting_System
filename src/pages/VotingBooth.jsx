@@ -17,8 +17,12 @@ const AVATAR_COLORS = [
   ['#f5c842','#ff9800'], ['#00e676','#00bcd4'],
 ];
 
-const getInitials = (name) =>
-  name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+const getInitials = (name) => {
+  if (!name) return '??';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
 
 const formatRole = (role) => {
   if (ROLE_META[role]) return ROLE_META[role].label;
@@ -41,7 +45,9 @@ const CandidateCard = ({ candidate, isSelected, onSelect, colorPair }) => {
         <div className="avatar" style={{
           background: candidate.photo ? 'none' : `linear-gradient(135deg, ${gradA}, ${gradB})`,
           boxShadow: isSelected ? `0 0 16px ${gradA}66` : 'none',
-          overflow: 'hidden', flexShrink: 0
+          overflow: 'hidden', flexShrink: 0,
+          width: '52px', height: '52px', borderRadius: '50%',
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}>
           {candidate.photo ? (
             <img src={candidate.photo} alt={candidate.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -172,7 +178,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
   /* ─── Voting Interface ─── */
   return (
     <div style={{
-      maxWidth: 760, margin: '0 auto', padding: '2rem 1.5rem',
+      maxWidth: 760, margin: '0 auto', padding: '2rem 1.5rem 120px',
       display: 'flex', flexDirection: 'column', gap: '1.25rem'
     }}>
 
