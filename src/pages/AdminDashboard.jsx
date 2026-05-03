@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCandidates } from '../context/CandidatesContext';
-import { BarChart3, RefreshCw, Trophy } from 'lucide-react';
+import { BarChart3, RefreshCw, Trophy, Trash2 } from 'lucide-react';
 
 const ROLE_LABELS = {
   president: 'President',
@@ -20,6 +20,20 @@ const AdminDashboard = () => {
   const loadVotes = () => {
     const saved = JSON.parse(localStorage.getItem('cathsoc_votes') || '{}');
     setVotes(saved);
+  };
+
+  const handleReset = () => {
+    if (window.confirm('Are you sure you want to RESET ALL VOTES? This cannot be undone.')) {
+      localStorage.removeItem('cathsoc_votes');
+      // Also remove all voter code statuses
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('voted_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      setVotes({});
+      alert('All votes and voter statuses have been reset.');
+    }
   };
 
   useEffect(() => {
@@ -50,9 +64,14 @@ const AdminDashboard = () => {
           <BarChart3 size={28} color="var(--accent-color)" />
           <h2 style={{ fontSize: '1.8rem' }}>Admin Dashboard — Live Results</h2>
         </div>
-        <button className="btn" onClick={loadVotes} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '10px 16px' }}>
-          <RefreshCw size={16} /> Refresh
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn-ghost" onClick={handleReset} style={{ color: 'var(--accent-red)', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '10px 16px' }}>
+            <Trash2 size={16} /> Reset All
+          </button>
+          <button className="btn" onClick={loadVotes} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '10px 16px' }}>
+            <RefreshCw size={16} /> Refresh
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gap: '1.5rem' }}>

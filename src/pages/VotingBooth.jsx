@@ -86,6 +86,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
   
   const [step, setStep] = useState(0);
   const [votes, setVotes] = useState({});
+  const [submitted, setSubmitted] = useState(false);
   
   // Initialize votes when roles are loaded
   useEffect(() => {
@@ -149,6 +150,14 @@ const VotingBooth = ({ voterCode, onComplete }) => {
     );
   }
 
+  if (loading || roles.length === 0) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 64px)' }}>
+        <div style={{ color: 'var(--text-secondary)' }}>Loading candidates...</div>
+      </div>
+    );
+  }
+
   /* ─── Voting Interface ─── */
   return (
     <div style={{
@@ -161,6 +170,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
           {roles.map((role, i) => {
             const done = i < step;
+            const active = i === step;
             const m = ROLE_META[role] || { label: role, icon: DEFAULT_ICON, color: '#7597de' };
             const Icon = m.icon;
             return (
