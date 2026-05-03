@@ -20,6 +20,11 @@ const AVATAR_COLORS = [
 const getInitials = (name) =>
   name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
+const formatRole = (role) => {
+  if (ROLE_META[role]) return ROLE_META[role].label;
+  return role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
 /* ─── Candidate Card ─── */
 const CandidateCard = ({ candidate, isSelected, onSelect, colorPair }) => {
   const [gradA, gradB] = colorPair;
@@ -36,7 +41,7 @@ const CandidateCard = ({ candidate, isSelected, onSelect, colorPair }) => {
         <div className="avatar" style={{
           background: candidate.photo ? 'none' : `linear-gradient(135deg, ${gradA}, ${gradB})`,
           boxShadow: isSelected ? `0 0 16px ${gradA}66` : 'none',
-          overflow: 'hidden'
+          overflow: 'hidden', flexShrink: 0
         }}>
           {candidate.photo ? (
             <img src={candidate.photo} alt={candidate.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -102,7 +107,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
   }, [roles]);
 
   const currentRole = roles[step];
-  const meta = ROLE_META[currentRole] || { label: currentRole, icon: DEFAULT_ICON, color: '#7597de' };
+  const meta = ROLE_META[currentRole] || { label: formatRole(currentRole), icon: DEFAULT_ICON, color: '#7597de' };
   const candidates = allCandidates[currentRole] || [];
 
   const handleSelect = (id) =>
@@ -177,7 +182,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
           {roles.map((role, i) => {
             const done = i < step;
             const active = i === step;
-            const m = ROLE_META[role] || { label: role, icon: DEFAULT_ICON, color: '#7597de' };
+            const m = ROLE_META[role] || { label: formatRole(role), icon: DEFAULT_ICON, color: '#7597de' };
             const Icon = m.icon;
             return (
               <React.Fragment key={role}>

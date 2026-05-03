@@ -30,10 +30,11 @@ const LandingPage = ({ onLogin }) => {
 
           <h1 style={{
             fontFamily: 'Bebas Neue, sans-serif',
-            fontSize: 'clamp(2.2rem, 4vw, 3.2rem)',
+            fontSize: 'clamp(2.5rem, 5vw, 3.8rem)',
             letterSpacing: '0.04em', lineHeight: 1.1,
             background: 'linear-gradient(135deg, #ffffff 40%, #00d4ff)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            marginTop: '1rem'
           }}>
             Cast Your<br />Official Vote
           </h1>

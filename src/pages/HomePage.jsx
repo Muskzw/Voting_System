@@ -24,9 +24,15 @@ const AVATAR_COLORS = [
 const getInitials = (name) =>
   name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
+const formatRole = (role) => {
+  if (ROLE_LABELS[role]) return ROLE_LABELS[role].label;
+  return role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
 /** Single race result panel */
 const RacePanel = ({ role, votes, candidates: allCandidates }) => {
-  const { label, icon: IconComponent, color, bg } = ROLE_LABELS[role] || { label: role, icon: DEFAULT_ICON, color: '#7597de', bg: 'rgba(117,151,222,0.12)' };
+  const meta = ROLE_LABELS[role] || { label: formatRole(role), icon: DEFAULT_ICON, color: '#7597de', bg: 'rgba(117,151,222,0.12)' };
+  const { label, icon: IconComponent, color, bg } = meta;
   const candidates = allCandidates[role] || [];
   const total = candidates.reduce((sum, c) => sum + (votes[role]?.[c.id] || 0), 0);
 
@@ -69,9 +75,9 @@ const RacePanel = ({ role, votes, candidates: allCandidates }) => {
               {/* Avatar */}
               <div className="avatar" style={{
                 background: candidate.photo ? 'none' : `linear-gradient(135deg, ${gradA}, ${gradB})`,
-                width: 38, height: 38, fontSize: '0.8rem',
+                width: 42, height: 42, fontSize: '0.85rem',
                 boxShadow: isLeading ? `0 0 12px ${gradA}66` : 'none',
-                overflow: 'hidden'
+                overflow: 'hidden', flexShrink: 0
               }}>
                 {candidate.photo ? (
                   <img src={candidate.photo} alt={candidate.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -177,7 +183,7 @@ const HomePage = () => {
       {/* ── HERO ── */}
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
-        textAlign: 'center', padding: '2.5rem 1rem 2rem', gap: '1rem'
+        textAlign: 'center', padding: '5rem 1rem 3rem', gap: '1.25rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div className="live-badge"><span className="dot" />Live</div>
@@ -188,10 +194,11 @@ const HomePage = () => {
 
         <h1 style={{
           fontFamily: 'Bebas Neue, sans-serif',
-          fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
-          letterSpacing: '0.05em', lineHeight: 1.05,
+          fontSize: 'clamp(2.5rem, 8vw, 4.2rem)',
+          letterSpacing: '0.04em', lineHeight: 1.05,
           background: 'linear-gradient(135deg, #ffffff 40%, #00d4ff)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          margin: '0.5rem 0'
         }}>
           CATHSOC Executive Election
         </h1>
