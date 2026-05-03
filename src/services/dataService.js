@@ -1,7 +1,7 @@
 import { MOCK_CANDIDATES } from '../data/mockData';
 
 const SHEET_ID = '1t7iKWWYencB9UXDy7XJUnZ-NiO7ieEt1FssGfhKq_Co';
-const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1152648792`;
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1194108142`;
 
 export const fetchCandidatesFromSheet = async () => {
   try {
@@ -97,9 +97,13 @@ function parseCSV(text) {
 function convertDriveUrl(url) {
   if (!url || !url.includes('drive.google.com')) return url;
   
-  const match = url.match(/\/file\/d\/([^\/]+)\//) || url.match(/id=([^\&]+)/);
-  if (match && match[1]) {
-    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+  // Handle various Google Drive link formats
+  const fileId = url.match(/\/file\/d\/([^\/]+)/)?.[1] || 
+                 url.match(/id=([^\&]+)/)?.[1] ||
+                 url.match(/\/open\?id=([^\&]+)/)?.[1];
+                 
+  if (fileId) {
+    return `https://drive.google.com/uc?export=view&id=${fileId}`;
   }
   return url;
 }
