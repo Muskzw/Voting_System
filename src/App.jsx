@@ -4,6 +4,7 @@ import { useState } from 'react';
 import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
 import VotingBooth from './pages/VotingBooth';
+import AdminDashboard from './pages/AdminDashboard';
 import Header from './components/Header';
 import Ticker from './components/Ticker';
 import { MOCK_VOTER_CODES } from './data/mockData';
@@ -22,7 +23,7 @@ function App() {
         navigate('/vote');
       }
     } else if (code === 'ADMIN-123') {
-      navigate('/');
+      navigate('/admin');
     } else {
       alert('Invalid Voter Code. Please check your code and try again.');
     }
@@ -48,6 +49,7 @@ function App() {
                 : <Navigate to="/login" replace />
             }
           />
+          <Route path="/admin"  element={<AdminDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
