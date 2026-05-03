@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_CANDIDATES } from '../data/mockData';
-import { CheckCircle2, ChevronRight, ChevronLeft, Send } from 'lucide-react';
+import { useCandidates } from '../context/CandidatesContext';
+import { CheckCircle2, ChevronRight, ChevronLeft, Send, Crown, Users, ClipboardList, Coins, PartyPopper, Vote } from 'lucide-react';
 
 const ROLE_META = {
-  president:         { label: 'President',         icon: '👑', color: '#f5c842' },
-  vice_president:    { label: 'Vice President',    icon: '🤝', color: '#1a6cf5' },
-  general_secretary: { label: 'General Secretary', icon: '📋', color: '#9b59f5' },
-  treasurer:         { label: 'Treasurer',         icon: '💰', color: '#00e676' },
+  president:         { label: 'President',         icon: Crown, color: '#f5c842' },
+  vice_president:    { label: 'Vice President',    icon: Users, color: '#1a6cf5' },
+  general_secretary: { label: 'General Secretary', icon: ClipboardList, color: '#9b59f5' },
+  treasurer:         { label: 'Treasurer',         icon: Coins, color: '#00e676' },
 };
 
-const ROLES = Object.keys(ROLE_META);
+const DEFAULT_ICON = Vote;
+
+const DEFAULT_ICON = Vote;
 
 const AVATAR_COLORS = [
   ['#1a6cf5','#00d4ff'], ['#9b59f5','#e040fb'],
@@ -81,27 +83,33 @@ const CandidateCard = ({ candidate, isSelected, onSelect, colorPair }) => {
 
 /* ─── Voting Booth ─── */
 const VotingBooth = ({ voterCode, onComplete }) => {
+  const { candidates: allCandidates, loading } = useCandidates();
+  const roles = Object.keys(allCandidates);
+  
   const [step, setStep] = useState(0);
-  const [votes, setVotes] = useState(
-    Object.fromEntries(ROLES.map(r => [r, null]))
-  );
-  const [submitted, setSubmitted] = useState(false);
-  const navigate = useNavigate();
+  const [votes, setVotes] = useState({});
+  
+  // Initialize votes when roles are loaded
+  useEffect(() => {
+    if (roles.length > 0 && Object.keys(votes).length === 0) {
+      setVotes(Object.fromEntries(roles.map(r => [r, null])));
+    }
+  }, [roles]);
 
-  const currentRole = ROLES[step];
-  const meta = ROLE_META[currentRole];
-  const candidates = MOCK_CANDIDATES[currentRole];
+  const currentRole = roles[step];
+  const meta = ROLE_META[currentRole] || { label: currentRole, icon: DEFAULT_ICON, color: '#7597de' };
+  const candidates = allCandidates[currentRole] || [];
 
   const handleSelect = (id) =>
     setVotes(prev => ({ ...prev, [currentRole]: id }));
 
   const handleSubmit = () => {
-    if (!ROLES.every(r => votes[r])) {
+    if (!roles.every(r => votes[r])) {
       alert('Please vote for all positions.');
       return;
     }
     const existing = JSON.parse(localStorage.getItem('cathsoc_votes') || '{}');
-    ROLES.forEach(role => {
+    roles.forEach(role => {
       const id = votes[role];
       existing[role] = existing[role] || {};
       existing[role][id] = (existing[role][id] || 0) + 1;
@@ -122,7 +130,9 @@ const VotingBooth = ({ voterCode, onComplete }) => {
           maxWidth: 480, width: '100%', padding: '3rem',
           textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1.25rem'
         }}>
-          <div style={{ fontSize: '4rem' }}>🎉</div>
+          <div style={{ color: 'var(--accent-cyan)', marginBottom: '0.5rem', opacity: 0.8 }}>
+            <PartyPopper size={64} />
+          </div>
           <CheckCircle2 size={56} color="var(--accent-green)" style={{ margin: '0 auto' }} />
           <h2 style={{
             fontFamily: 'Bebas Neue, sans-serif', fontSize: '2rem',
@@ -151,10 +161,10 @@ const VotingBooth = ({ voterCode, onComplete }) => {
       {/* ── Stepper ── */}
       <div className="glass" style={{ padding: '1.25rem 1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
-          {ROLES.map((role, i) => {
+          {roles.map((role, i) => {
             const done = i < step;
-            const active = i === step;
-            const m = ROLE_META[role];
+            const m = ROLE_META[role] || { label: role, icon: DEFAULT_ICON, color: '#7597de' };
+            const Icon = m.icon;
             return (
               <React.Fragment key={role}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', flex: 1 }}>
@@ -172,7 +182,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
                     transition: 'all 0.3s',
                     color: done || active ? 'white' : 'var(--text-muted)',
                   }}>
-                    {done ? '✓' : m.icon}
+                    {done ? '✓' : <Icon size={16} />}
                   </div>
                   <span style={{
                     fontSize: '0.65rem', textAlign: 'center',
@@ -182,7 +192,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
                     {m.label}
                   </span>
                 </div>
-                {i < ROLES.length - 1 && (
+                {i < roles.length - 1 && (
                   <div style={{
                     flex: 1, height: '2px', marginBottom: '22px',
                     background: done
@@ -200,8 +210,14 @@ const VotingBooth = ({ voterCode, onComplete }) => {
       {/* ── Role card ── */}
       <div className="glass" style={{ padding: '1.75rem' }}>
         <div style={{ marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-            <span style={{ fontSize: '1.5rem' }}>{meta.icon}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+            <div style={{ 
+              width: 40, height: 40, borderRadius: '10px', 
+              background: `${meta.color || '#7597de'}18`, 
+              display: 'flex', alignItems: 'center', justifyContent: 'center' 
+            }}>
+              {React.createElement(meta.icon || DEFAULT_ICON, { size: 20, color: meta.color || '#7597de' })}
+            </div>
             <h2 style={{
               fontFamily: 'Bebas Neue, sans-serif',
               fontSize: '1.6rem', letterSpacing: '0.04em',
@@ -210,7 +226,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
             </h2>
           </div>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            Select one candidate — Step {step + 1} of {ROLES.length}
+            Select one candidate — Step {step + 1} of {roles.length}
           </p>
         </div>
 
@@ -241,7 +257,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
             <ChevronLeft size={17} /> Back
           </button>
 
-          {step < ROLES.length - 1 ? (
+          {step < roles.length - 1 ? (
             <button
               className="btn-primary"
               onClick={() => setStep(s => s + 1)}

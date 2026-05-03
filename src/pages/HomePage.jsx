@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_CANDIDATES } from '../data/mockData';
+import { useCandidates } from '../context/CandidatesContext';
 import AnimatedNumber from '../components/AnimatedNumber';
-import { Trophy, ChevronRight, RefreshCw, Users, TrendingUp, Clock } from 'lucide-react';
+import { Trophy, ChevronRight, RefreshCw, Users, TrendingUp, Clock, Crown, ClipboardList, Coins, Vote } from 'lucide-react';
 
 const ROLE_LABELS = {
-  president:        { label: 'President',         icon: '👑', color: '#f5c842', bg: 'rgba(245,200,66,0.12)' },
-  vice_president:   { label: 'Vice President',    icon: '🤝', color: '#1a6cf5', bg: 'rgba(26,108,245,0.12)' },
-  general_secretary:{ label: 'General Secretary', icon: '📋', color: '#9b59f5', bg: 'rgba(155,89,245,0.12)' },
-  treasurer:        { label: 'Treasurer',         icon: '💰', color: '#00e676', bg: 'rgba(0,230,118,0.12)' },
+  president:        { label: 'President',         icon: Crown, color: '#f5c842', bg: 'rgba(245,200,66,0.12)' },
+  vice_president:   { label: 'Vice President',    icon: Users, color: '#1a6cf5', bg: 'rgba(26,108,245,0.12)' },
+  general_secretary:{ label: 'General Secretary', icon: ClipboardList, color: '#9b59f5', bg: 'rgba(155,89,245,0.12)' },
+  treasurer:        { label: 'Treasurer',         icon: Coins, color: '#00e676', bg: 'rgba(0,230,118,0.12)' },
 };
+
+// Fallback icon for new roles from Google Sheet
+const DEFAULT_ICON = Vote;
 
 const ROLES = Object.keys(ROLE_LABELS);
 
@@ -22,9 +25,9 @@ const getInitials = (name) =>
   name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
 /** Single race result panel */
-const RacePanel = ({ role, votes }) => {
-  const { label, icon, color, bg } = ROLE_LABELS[role];
-  const candidates = MOCK_CANDIDATES[role];
+const RacePanel = ({ role, votes, candidates: allCandidates }) => {
+  const { label, icon: IconComponent, color, bg } = ROLE_LABELS[role] || { label: role, icon: DEFAULT_ICON, color: '#7597de', bg: 'rgba(117,151,222,0.12)' };
+  const candidates = allCandidates[role] || [];
   const total = candidates.reduce((sum, c) => sum + (votes[role]?.[c.id] || 0), 0);
 
   const sorted = [...candidates].sort(
@@ -38,7 +41,7 @@ const RacePanel = ({ role, votes }) => {
       {/* Header */}
       <div className="role-header">
         <div className="role-icon" style={{ background: bg }}>
-          <span style={{ fontSize: '1.1rem' }}>{icon}</span>
+          <IconComponent size={18} color={color} />
         </div>
         <div>
           <div style={{ fontWeight: 700, fontSize: '1rem' }}>{label}</div>
@@ -47,8 +50,8 @@ const RacePanel = ({ role, votes }) => {
           </div>
         </div>
         {total > 0 && (
-          <div className="winner-crown" style={{ marginLeft: 'auto' }}>
-            🏆 Leading
+          <div className="winner-crown" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Trophy size={12} /> Leading
           </div>
         )}
       </div>
@@ -133,8 +136,11 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
 /* ─── Main Page ─── */
 const HomePage = () => {
   const navigate = useNavigate();
+  const { candidates, loading } = useCandidates();
   const [votes, setVotes] = useState({});
   const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  const roles = Object.keys(candidates);
 
   const loadVotes = useCallback(() => {
     const saved = JSON.parse(localStorage.getItem('cathsoc_votes') || '{}');
@@ -150,7 +156,7 @@ const HomePage = () => {
 
   const totalVotesCast = (() => {
     let max = 0;
-    ROLES.forEach(role => {
+    roles.forEach(role => {
       const t = Object.values(votes[role] || {}).reduce((s, v) => s + v, 0);
       if (t > max) max = t;
     });
@@ -211,8 +217,8 @@ const HomePage = () => {
         gap: '1rem', marginBottom: '2rem'
       }}>
         <StatCard icon={Users}     label="Total Votes Cast"    value={totalVotesCast} color="#1a6cf5" />
-        <StatCard icon={TrendingUp} label="Races Being Tracked" value={ROLES.length}   color="#9b59f5" />
-        <StatCard icon={Trophy}    label="Positions Available"  value={ROLES.length}   color="#f5c842" />
+        <StatCard icon={TrendingUp} label="Races Being Tracked" value={roles.length}   color="#9b59f5" />
+        <StatCard icon={Trophy}    label="Positions Available"  value={roles.length}   color="#f5c842" />
         <StatCard icon={Clock}     label="Polls Status"         value="OPEN"           color="#00e676" />
       </div>
 
@@ -232,8 +238,8 @@ const HomePage = () => {
         gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
         gap: '1.25rem'
       }}>
-        {ROLES.map(role => (
-          <RacePanel key={role} role={role} votes={votes} />
+        {roles.map(role => (
+          <RacePanel key={role} role={role} votes={votes} candidates={candidates} />
         ))}
       </div>
 
@@ -243,7 +249,9 @@ const HomePage = () => {
           textAlign: 'center', padding: '4rem 2rem',
           color: 'var(--text-muted)', fontSize: '0.95rem'
         }}>
-          <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🗳️</div>
+          <div style={{ color: 'var(--accent-blue)', marginBottom: '1.25rem', opacity: 0.5 }}>
+            <Vote size={48} />
+          </div>
           <p>No votes have been cast yet. Be the first to vote!</p>
           <button className="btn-primary" onClick={() => navigate('/login')} style={{ marginTop: '1.5rem' }}>
             Open Voting Booth

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { KeyRound, ArrowRight, ShieldCheck } from 'lucide-react';
+import { KeyRound, ArrowRight, ShieldCheck, Lock, CheckCircle2, BarChart2 } from 'lucide-react';
 
 const LandingPage = ({ onLogin }) => {
   const [voterCode, setVoterCode] = useState('');
@@ -44,12 +44,12 @@ const LandingPage = ({ onLogin }) => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {[
-              { icon: '🔐', text: 'End-to-end secure voting' },
-              { icon: '✅', text: 'One vote per registered student' },
-              { icon: '📊', text: 'Live results on the home page' },
+              { icon: <Lock size={16} />, text: 'End-to-end secure voting' },
+              { icon: <CheckCircle2 size={16} />, text: 'One vote per registered student' },
+              { icon: <BarChart2 size={16} />, text: 'Live results on the home page' },
             ].map(f => (
               <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                <span>{f.icon}</span> {f.text}
+                <span style={{ color: 'var(--accent-cyan)', display: 'flex' }}>{f.icon}</span> {f.text}
               </div>
             ))}
           </div>

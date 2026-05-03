@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { MOCK_CANDIDATES } from '../data/mockData';
-import { BarChart3, RefreshCw } from 'lucide-react';
+import { useCandidates } from '../context/CandidatesContext';
+import { BarChart3, RefreshCw, Trophy } from 'lucide-react';
 
 const ROLE_LABELS = {
   president: 'President',
@@ -12,7 +12,10 @@ const ROLE_LABELS = {
 const ROLES = Object.keys(ROLE_LABELS);
 
 const AdminDashboard = () => {
+  const { candidates: allCandidates, loading } = useCandidates();
   const [votes, setVotes] = useState({});
+  
+  const roles = Object.keys(allCandidates);
 
   const loadVotes = () => {
     const saved = JSON.parse(localStorage.getItem('cathsoc_votes') || '{}');
@@ -37,7 +40,7 @@ const AdminDashboard = () => {
     const entries = Object.entries(votes[role]);
     if (!entries.length) return null;
     const winnerId = entries.reduce((a, b) => (a[1] >= b[1] ? a : b))[0];
-    return MOCK_CANDIDATES[role].find(c => c.id === winnerId);
+    return (allCandidates[role] || []).find(c => c.id === winnerId);
   };
 
   return (
@@ -53,22 +56,25 @@ const AdminDashboard = () => {
       </div>
 
       <div style={{ display: 'grid', gap: '1.5rem' }}>
-        {ROLES.map(role => {
+        {roles.map(role => {
           const total = getTotalForRole(role);
           const winner = getWinner(role);
+          const label = ROLE_LABELS[role] || role;
           return (
             <div key={role} className="glass-panel" style={{ padding: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                <h3 style={{ fontSize: '1.2rem', color: 'var(--accent-color)' }}>{ROLE_LABELS[role]}</h3>
+                <h3 style={{ fontSize: '1.2rem', color: 'var(--accent-color)', textTransform: 'capitalize' }}>{label}</h3>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                   Total Votes: <strong style={{ color: 'white' }}>{total}</strong>
                   {winner && total > 0 && (
-                    <span style={{ marginLeft: '1rem', color: '#4cd137' }}>🏆 Leading: {winner.name}</span>
+                    <span style={{ marginLeft: '1rem', color: '#4cd137', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Trophy size={14} /> Leading: {winner.name}
+                    </span>
                   )}
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {MOCK_CANDIDATES[role].map(candidate => {
+                {(allCandidates[role] || []).map(candidate => {
                   const count = getVoteCount(role, candidate.id);
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                   return (
