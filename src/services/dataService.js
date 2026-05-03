@@ -95,15 +95,17 @@ function parseCSV(text) {
  * Converts a regular Google Drive share link to a direct image link.
  */
 function convertDriveUrl(url) {
-  if (!url || !url.includes('drive.google.com')) return url;
+  if (!url) return '';
+  if (!url.includes('drive.google.com')) return url;
   
-  // Handle various Google Drive link formats
-  const fileId = url.match(/\/file\/d\/([^\/]+)/)?.[1] || 
-                 url.match(/id=([^\&]+)/)?.[1] ||
-                 url.match(/\/open\?id=([^\&]+)/)?.[1];
+  // Extract file ID from various Drive URL formats
+  const fileIdMatch = url.match(/\/file\/d\/([^\/\?]+)/) || 
+                      url.match(/id=([^\&\?]+)/) ||
+                      url.match(/\/open\?id=([^\&\?]+)/);
                  
-  if (fileId) {
-    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+  if (fileIdMatch && fileIdMatch[1]) {
+    // This endpoint is generally more reliable for direct embedding in <img> tags
+    return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
   }
   return url;
 }

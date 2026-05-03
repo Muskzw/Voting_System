@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCandidates } from '../context/CandidatesContext';
-import { BarChart3, RefreshCw, Trophy, Trash2, Users, UserCheck, ShieldCheck, Download, ChevronRight } from 'lucide-react';
+import { BarChart3, RefreshCw, Trophy, Trash2, Users, UserCheck, ShieldCheck, Download, ChevronRight, Activity } from 'lucide-react';
+import { MOCK_VOTER_CODES } from '../data/mockData';
 
 const ROLE_LABELS = {
   president: 'President',
@@ -27,7 +28,7 @@ const AdminDashboard = () => {
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith('voted_')) votedCount++;
     });
-    setVoterStats({ total: 50, voted: votedCount }); // Hardcoded 50 for demo, could be MOCK_VOTER_CODES.length
+    setVoterStats({ total: MOCK_VOTER_CODES.length, voted: votedCount });
   };
 
   const handleReset = () => {
