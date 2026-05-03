@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCandidates } from '../context/CandidatesContext';
 import { CheckCircle2, ChevronRight, ChevronLeft, Send, Crown, Users, ClipboardList, Coins, PartyPopper, Vote } from 'lucide-react';
@@ -87,6 +87,7 @@ const VotingBooth = ({ voterCode, onComplete }) => {
   const [step, setStep] = useState(0);
   const [votes, setVotes] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
   
   // Initialize votes when roles are loaded
   useEffect(() => {

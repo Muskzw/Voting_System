@@ -1,6 +1,4 @@
-/**
- * Service to fetch and parse candidate data from Google Sheets CSV export.
- */
+import { MOCK_CANDIDATES } from '../data/mockData';
 
 const SHEET_ID = '1t7iKWWYencB9UXDy7XJUnZ-NiO7ieEt1FssGfhKq_Co';
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1152648792`;
@@ -42,8 +40,9 @@ export const fetchCandidatesFromSheet = async () => {
     
     return candidatesByRole;
   } catch (error) {
-    console.error('Error fetching candidates:', error);
-    return null;
+    console.error('Error fetching candidates from Google Sheet:', error);
+    // Fallback to mock data if fetch fails
+    return MOCK_CANDIDATES;
   }
 };
 
